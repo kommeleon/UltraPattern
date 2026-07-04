@@ -15,9 +15,9 @@
 
 bl_info = {
         "name": "UltraPattern",
-        "author": "jackk25",
-        "version": (1, 0, 0),
-        "blender": (3, 6, 0),
+        "author": "kommeleon",
+        "version": (1, 1, 0),
+        "blender": (5, 1, 0),
         "category": "3D View",
         "location": "3D View > Sidebar > UltraPattern",
         "description": "Import, create, modify, and export Cyber Grind Pattern files to ULTRAKILL"
@@ -126,6 +126,8 @@ class UpdateAllPillars(bpy.types.Operator):
         for obj in context.selected_objects:
             if obj.is_pillar:
                 obj.prefab_type = context.active_object.prefab_type
+            if obj.is_stair:
+                obj.prefab_type = context.active_object.prefab_type
         return {"FINISHED"}
     
 class ChangeShadingType(bpy.types.Operator):
@@ -155,12 +157,12 @@ class GenerateMaterial(bpy.types.Operator, ImportHelper):
     def poll(cls, context):
         # Error checking
         try:
-            return context.active_object.is_pillar
+            return context.active_object.is_pillar or context.active_object.is_stair
         except AttributeError:
             return False
 
     def execute(self, context):
-        return utils.generate_material(context.active_object, self.filepath)
+        return utils.generate_material(context, self.filepath)
 
 class CGP_EDITOR_PT_Mesh(bpy.types.Panel):
     bl_label = "Mesh"
@@ -198,7 +200,7 @@ class CGP_EDITOR_PT_Pillar(bpy.types.Panel):
     def poll(cls, context):
         # Error checking
         try:
-            return context.active_object.is_pillar
+            return context.active_object.is_pillar or context.active_object.is_stair
         except AttributeError:
             return False
 
@@ -240,6 +242,7 @@ def register():
         ),
         default='0', update=utils.prefab_update)
     bpy.types.Object.is_pillar = BoolProperty(name="Is Pillar")
+    bpy.types.Object.is_stair = BoolProperty(name="Is Stair")
 
     for cls in classes:
         bpy.utils.register_class(cls)
@@ -251,6 +254,7 @@ def unregister():
     del bpy.types.Collection.is_pattern
     del bpy.types.Object.prefab_type
     del bpy.types.Object.is_pillar
+    del bpy.types.Object.is_stair
 
 if __name__ == "__main__":
     register()

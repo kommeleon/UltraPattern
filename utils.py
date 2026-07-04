@@ -38,25 +38,30 @@ def update_color(obj, prefab):
     object_color = [x/255 for x in object_color]
     obj.color = object_color
 
-def generate_material(obj, filepath):
+def generate_material(context, filepath):
     material = bpy.data.materials.new(name="Pillar Material")
     material.use_nodes = True
 
     material.node_tree.nodes.remove(material.node_tree.nodes.get('Principled BSDF'))
 
-    #Create the nodes we need for the material
+    # Create the nodes we need for the material
     material_output = material.node_tree.nodes.get('Material Output')
     emission = material.node_tree.nodes.new('ShaderNodeEmission')
     image_texture = material.node_tree.nodes.new('ShaderNodeTexImage')
 
-    #Link our nodes together to create the tree
+    # Link our nodes together to create the tree
     material.node_tree.links.new(emission.inputs[0], image_texture.outputs[0])
     material.node_tree.links.new(material_output.inputs[0], emission.outputs[0])
 
-    #Load the most recent image, this will be our opened image
+    # Load the most recent image, this will be our opened image
     image_texture.image = bpy.data.images.load(filepath)
     image_texture.interpolation = 'Closest'
-    
-    obj.active_material = material
+
+    for obj in context.scene.objects:
+        if getattr(obj, "is_pillar", False) or getattr(obj, "is_stair", False):
+            if obj.type == 'MESH':
+                if obj.data.materials:
+                    obj.data.materials.clear()
+                obj.data.materials.append(material)
 
     return {"FINISHED"}

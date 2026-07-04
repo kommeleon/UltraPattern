@@ -1,5 +1,13 @@
-# UltraPattern (1.0.0)
-A Blender add-on to import, create, modify, and export Cyber Grind Pattern files for ULTRAKILL   
+# This is not my Add-On!
+
+This is a fork of glitchingdot/UltraPattern because the original creator didn't seem to be active anymore.
+For now I've added support for stairs, which was the reason I forked it.
+In the future I'm gonna add support for Jump Pads and maybe support for importing custom skyboxes a bit more easily.
+
+
+
+# UltraPattern (1.1.0)
+A Blender add-on to import, create, modify, and export Cyber Grind Pattern files for ULTRAKILL
 
 Use UltraPattern to build and visualize new patterns fast, set up animation environments quickly, and debug broken patterns!
 
