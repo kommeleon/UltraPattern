@@ -75,22 +75,33 @@ def update_world_background(context, filepath):
     ntree = world.node_tree
     
     for node in list(ntree.nodes):
-        if node.type == 'TEX_ENVIRONMENT':
+        if node.type in {'TEX_ENVIRONMENT', 'MAPPING', 'TEX_COORD'}:
             ntree.nodes.remove(node)
             
     bg_node = ntree.nodes.get("Background")
     if not bg_node:
         bg_node = ntree.nodes.new("ShaderNodeBackground")
+
+    coord_node = ntree.nodes.new("ShaderNodeTexCoord")
+    mapping_node = ntree.nodes.new("ShaderNodeMapping")
     env_node = ntree.nodes.new("ShaderNodeTexEnvironment")
     
     try:
         env_node.image = bpy.data.images.load(filepath)
-
         env_node.interpolation = 'Closest'
     except Exception as e:
         print(f"Error loading background image: {e}")
         return {'CANCELLED'}
-        
+
+    ntree.links.new(mapping_node.inputs['Vector'], coord_node.outputs['Generated'])
+    ntree.links.new(env_node.inputs['Vector'], mapping_node.outputs['Vector'])
     ntree.links.new(bg_node.inputs['Color'], env_node.outputs['Color'])
+
+    driver_target = mapping_node.inputs['Rotation'].default_value
+
+    driver_spec = mapping_node.inputs['Rotation'].driver_add("default_value", 2)
+    driver = driver_spec.driver
+
+    driver.expression = "frame * 0.00072"
     
     return {'FINISHED'}
