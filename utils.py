@@ -65,3 +65,32 @@ def generate_material(context, filepath):
                 obj.data.materials.append(material)
 
     return {"FINISHED"}
+
+def update_world_background(context, filepath):
+    if not context.scene.world:
+        context.scene.world = bpy.data.worlds.new("World")
+    
+    world = context.scene.world
+    world.use_nodes = True
+    ntree = world.node_tree
+    
+    for node in list(ntree.nodes):
+        if node.type == 'TEX_ENVIRONMENT':
+            ntree.nodes.remove(node)
+            
+    bg_node = ntree.nodes.get("Background")
+    if not bg_node:
+        bg_node = ntree.nodes.new("ShaderNodeBackground")
+    env_node = ntree.nodes.new("ShaderNodeTexEnvironment")
+    
+    try:
+        env_node.image = bpy.data.images.load(filepath)
+
+        env_node.interpolation = 'Closest'
+    except Exception as e:
+        print(f"Error loading background image: {e}")
+        return {'CANCELLED'}
+        
+    ntree.links.new(bg_node.inputs['Color'], env_node.outputs['Color'])
+    
+    return {'FINISHED'}

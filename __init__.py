@@ -16,7 +16,7 @@
 bl_info = {
         "name": "UltraPattern",
         "author": "kommeleon",
-        "version": (1, 1, 0),
+        "version": (1, 1, 1),
         "blender": (5, 1, 0),
         "category": "3D View",
         "location": "3D View > Sidebar > UltraPattern",
@@ -64,6 +64,23 @@ class ImportCGP(bpy.types.Operator, ImportHelper):
     def execute(self, context):
         from . import import_cgp
         return import_cgp.load(context, self.filepath)
+
+class SetWorldBackground(bpy.types.Operator, ImportHelper):
+    """Select a image to set as the active world background"""
+    bl_idname = "cgp_editor.set_world_bg"
+    bl_label = "Set World Background"
+    bl_options = {'UNDO'}
+
+    # Restrict the file window to only display/look for PNG files
+    filename_ext = ".png"
+    filter_glob: StringProperty(
+        default="*.png",
+        options={'HIDDEN'}
+    )
+
+    def execute(self, context):
+        from . import utils
+        return utils.update_world_background(context, self.filepath)
 
 class ExportCGP(bpy.types.Operator, ExportHelper):
     """Write a Cyber Grind Pattern file"""
@@ -184,6 +201,9 @@ class CGP_EDITOR_PT_Mesh(bpy.types.Panel):
         row.operator(GenerateMaterial.bl_idname, icon="SHADING_TEXTURE")
 
         row = layout.row()
+        row.operator(SetWorldBackground.bl_idname, icon="WORLD")
+
+        row = layout.row()
         if context.space_data.shading.color_type != 'OBJECT':
             row.label(text="WARNING: Object Shading is NOT enabled, prefab colors will NOT work", icon="ERROR")
             row.operator(ChangeShadingType.bl_idname)
@@ -223,6 +243,7 @@ classes = (
     UpdateAllPillars,
     ChangeShadingType,
     GenerateMaterial,
+    SetWorldBackground,
     CGP_EDITOR_PT_Mesh,
     CGP_EDITOR_PT_Pillar
 )
