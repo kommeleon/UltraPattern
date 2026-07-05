@@ -2,7 +2,7 @@
 
 This is a fork of glitchingdot/UltraPattern because the original creator didn't seem to be active anymore.
 
-For now I've added support for stairs, which was the reason I forked it.
+For now I've added support for stairs, which was the reason I forked it and support for changing the world background.
 
 In the future I'm gonna add support for Jump Pads.
 
