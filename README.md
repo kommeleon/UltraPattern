@@ -2,18 +2,22 @@
 
 This is a fork of glitchingdot/UltraPattern because the original creator didn't seem to be active anymore.
 
-For now I've added support for stairs, which was the reason I forked it and support for changing the world background.
+For now I've added support for stairs and jump pads, which was the reason I forked it, and support for changing the world background.
 
-In the future I'm gonna add support for Jump Pads.
+In the future I'm gonna add support for the lighting effect that the cybergrind map has.
+
+If you find the changes I've made to this project to be helpful for you, please consider crediting me (kommeleon) and the original creator.
 
 Original Description (with small changes by me):
 
-# UltraPattern (1.2.0)
+# UltraPattern (1.2.1)
+
 A Blender add-on to import, create, modify, and export Cyber Grind Pattern files for ULTRAKILL
 
 Use UltraPattern to build and visualize new patterns fast, set up animation environments quickly, and debug broken patterns!
 
 ## Features
+
 * Importing and exporting Cyber Grind patterns 📦
 * Create new patterns 💡
 * Prefab editing 📝
@@ -22,12 +26,16 @@ Use UltraPattern to build and visualize new patterns fast, set up animation envi
 *And more to come!*
 
 ## Requirements
+
 UltraPattern was built using Blender **3.6.1**, but it is compatible with most modern versions of Blender  
 *hopefully*, compatibility cannot be 100% ensured
 
+(I've tested it on 5.1 and it works perfectly   -kommeleon)
+
 ## Installation
+
 * Download the add-on from the Releases page: [UltraPattern](https://github.com/kommeleon/UltraPattern/releases/latest)
-   * Do **NOT** unzip the file
+  * Do **NOT** unzip the file
 * In Blender, go to *Edit > Preferences > Add-ons* and click on *Install*
 * Select the downloaded file, press *Install Add-on*
 * Click on the check box next to the text
@@ -35,6 +43,7 @@ UltraPattern was built using Blender **3.6.1**, but it is compatible with most m
 Congrats, you've just installed UltraPattern! 🎉
 
 ## Usage
+
 * In the 3D View, press N to open the sidebar
 * Click on the tab labled "UltraPattern"
 * To get started, either import a pattern with *Import CGP* or create a blank pattern with *Create Blank Pattern*  

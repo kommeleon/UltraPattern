@@ -79,24 +79,35 @@ def make_stairs(stair_height, stair_rotation):
 
     return stair_obj
 
-def calculate_stairs(height_map, x, y):
-    stairs = [1, 0]
+def calculate_stairs(height_map, x, y, first_stair_rotation):
+    stairs = [1, 0, 0] # Height, Rotation, Amount of stairs
 
-    if x > 0:
+    if x > 0 and first_stair_rotation != 3:
         if 0 < (height_map[x-1][y] - height_map[x][y]) <= 2:
-            stairs = [height_map[x-1][y] - height_map[x][y], 270]
+            stairs[0] = height_map[x-1][y] - height_map[x][y]
+            stairs[1] = 3
+            stairs[2] += 1
 
-    if x < 15:
+    if x < 15 and first_stair_rotation != 1:
         if 0 < (height_map[x+1][y] - height_map[x][y]) <= 2:
-            stairs = [height_map[x+1][y] - height_map[x][y], 90]
+            stairs[0] = height_map[x+1][y] - height_map[x][y]
+            stairs[1] = 1
+            stairs[2] += 1
 
-    if y > 0:
+
+    if y > 0 and first_stair_rotation != 0:
         if 0 < (height_map[x][y-1] - height_map[x][y]) <= 2:
-            stairs = [height_map[x][y-1] - height_map[x][y], 0]
+            stairs[0] = height_map[x][y-1] - height_map[x][y]
+            stairs[1] = 0
+            stairs[2] += 1
 
-    if y < 15:
+
+    if y < 15 and first_stair_rotation != 2:
         if 0 < (height_map[x][y+1] - height_map[x][y]) <= 2:
-            stairs = [height_map[x][y+1] - height_map[x][y], 180]
+            stairs[0] = height_map[x][y+1] - height_map[x][y]
+            stairs[1] = 2
+            stairs[2] += 1
+
 
     return stairs
 
@@ -168,22 +179,38 @@ def build_grid(context, height_map, prefab_map, name):
             pillar_copy.prefab_type = str(prefab)
 
             if str(prefab) == "s":
-                stairs = calculate_stairs(height_map, x, y)
+                stairs = calculate_stairs(height_map, x, y, 5)
+                if stairs[2] > 0:
+                    
+                    stair_obj = make_stairs(stairs[0],stairs[1]*90)
+                    stair_obj.location = position_offset.copy()
 
-                stair_obj = make_stairs(stairs[0],stairs[1])
-                stair_obj.location = position_offset.copy()
+                    stair_obj.location.z = height
 
-                stair_obj.location.z = height
+                    stair_obj.is_pillar = False
+                    stair_obj.is_stair = True
 
-                stair_obj.is_pillar = False
-                stair_obj.is_stair = True
+                    collection.objects.link(stair_obj)
 
-                if stair_obj.name not in collection.objects:
+                    if stair_obj.name in context.collection.objects:
+                        context.collection.objects.unlink(stair_obj)
+
+                    if stairs [2] > 1:
+                        stairs = calculate_stairs(height_map, x, y, stairs[1])
+
+                        stair_obj = make_stairs(stairs[0],stairs[1]*90)
+                        stair_obj.location = position_offset.copy()
+
+                        stair_obj.location.z = height
+
+                        stair_obj.is_pillar = False
+                        stair_obj.is_stair = True
+
                         collection.objects.link(stair_obj)
 
-                if stair_obj.name in context.scene.collection.objects:
-                    context.scene.collection.objects.unlink(stair_obj)
-            
+                        if stair_obj.name in context.collection.objects:
+                            context.collection.objects.unlink(stair_obj)
+
             if str(prefab) == "J":
                 # By calling append directly inside the loop, Blender handles all the 
                 # material duplication and node target isolation automatically.
@@ -197,11 +224,10 @@ def build_grid(context, height_map, prefab_map, name):
                     jump_obj.is_stair = False
                     jump_obj.is_jumppad = True 
 
-                    if jump_obj.name not in collection.objects:
-                        collection.objects.link(jump_obj)
+                    collection.objects.link(jump_obj)
 
-                    if jump_obj.name in context.scene.collection.objects:
-                        context.scene.collection.objects.unlink(jump_obj)
+                    if jump_obj.name in context.collection.objects:
+                        context.collection.objects.unlink(jump_obj)
 
     bpy.data.objects.remove(original_pillar)
 
