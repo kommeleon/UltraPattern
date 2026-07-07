@@ -16,7 +16,7 @@
 bl_info = {
         "name": "UltraPattern",
         "author": "kommeleon",
-        "version": (1, 1, 1),
+        "version": (1, 2, 0),
         "blender": (5, 1, 0),
         "category": "3D View",
         "location": "3D View > Sidebar > UltraPattern",
@@ -174,7 +174,7 @@ class GenerateMaterial(bpy.types.Operator, ImportHelper):
     def poll(cls, context):
         # Error checking
         try:
-            return context.active_object.is_pillar or context.active_object.is_stair
+            return context.active_object.is_pillar or context.active_object.is_stair or getattr(context.active_object, "is_jumppad", False)
         except AttributeError:
             return False
 
@@ -220,7 +220,7 @@ class CGP_EDITOR_PT_Pillar(bpy.types.Panel):
     def poll(cls, context):
         # Error checking
         try:
-            return context.active_object.is_pillar or context.active_object.is_stair
+            return context.active_object.is_pillar or context.active_object.is_stair or getattr(context.active_object, "is_jumppad", False)
         except AttributeError:
             return False
 
@@ -264,6 +264,7 @@ def register():
         default='0', update=utils.prefab_update)
     bpy.types.Object.is_pillar = BoolProperty(name="Is Pillar")
     bpy.types.Object.is_stair = BoolProperty(name="Is Stair")
+    bpy.types.Object.is_jumppad = BoolProperty(name="Is Jump Pad")
 
     for cls in classes:
         bpy.utils.register_class(cls)
@@ -276,6 +277,7 @@ def unregister():
     del bpy.types.Object.prefab_type
     del bpy.types.Object.is_pillar
     del bpy.types.Object.is_stair
+    del bpy.types.Object.is_jumppad
 
 if __name__ == "__main__":
     register()

@@ -102,6 +102,6 @@ def update_world_background(context, filepath):
     driver_spec = mapping_node.inputs['Rotation'].driver_add("default_value", 2)
     driver = driver_spec.driver
 
-    driver.expression = "frame * 0.00072"
+    driver.expression = "frame * 0.00071"
     
     return {'FINISHED'}

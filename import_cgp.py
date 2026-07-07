@@ -100,6 +100,47 @@ def calculate_stairs(height_map, x, y):
 
     return stairs
 
+def make_jumppad():
+    current_file_dir = os.path.dirname(__file__)
+    blend_filepath = os.path.join(current_file_dir, "resources", "jump_pad.blend")
+
+    if not os.path.exists(blend_filepath):
+        print(f"Cannot find {blend_filepath}")
+        return None
+
+    object_name = "jumppad" 
+    
+    directory = blend_filepath + "/Object/"
+    old_objects = set(bpy.data.objects)
+
+    try:
+        bpy.ops.wm.append(
+            filepath=blend_filepath + "/Object/" + object_name, 
+            directory=directory, 
+            filename=object_name
+        )
+    except Exception as e:
+        print(f"Failed to append jumppad: {e}")
+        return None
+
+    new_objects = set(bpy.data.objects) - old_objects
+    if not new_objects:
+        return None
+
+    # The targeted filter to ensure we get the pad, not the orphaned particle planes
+    jump_obj = None
+    for obj in new_objects:
+        if obj.name.startswith(object_name):
+            jump_obj = obj
+            break
+            
+    if not jump_obj:
+        jump_obj = list(new_objects)[0]
+
+    jump_obj.name = "Imported_JumpPad"
+
+    return jump_obj
+
 def build_grid(context, height_map, prefab_map, name):
     PILLAR_VERTICAL_SCALE = 10
     BASE_PILLAR_SIZE = 2
@@ -132,7 +173,6 @@ def build_grid(context, height_map, prefab_map, name):
                 stair_obj = make_stairs(stairs[0],stairs[1])
                 stair_obj.location = position_offset.copy()
 
-
                 stair_obj.location.z = height
 
                 stair_obj.is_pillar = False
@@ -143,8 +183,28 @@ def build_grid(context, height_map, prefab_map, name):
 
                 if stair_obj.name in context.scene.collection.objects:
                     context.scene.collection.objects.unlink(stair_obj)
+            
+            if str(prefab) == "J":
+                # By calling append directly inside the loop, Blender handles all the 
+                # material duplication and node target isolation automatically.
+                jump_obj = make_jumppad()
+                
+                if jump_obj:
+                    jump_obj.location = position_offset.copy()
+                    jump_obj.location.z = height
+
+                    jump_obj.is_pillar = False
+                    jump_obj.is_stair = False
+                    jump_obj.is_jumppad = True 
+
+                    if jump_obj.name not in collection.objects:
+                        collection.objects.link(jump_obj)
+
+                    if jump_obj.name in context.scene.collection.objects:
+                        context.scene.collection.objects.unlink(jump_obj)
 
     bpy.data.objects.remove(original_pillar)
+
     return {'FINISHED'}
 
 def parse_height_map(height_map):

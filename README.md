@@ -8,7 +8,7 @@ In the future I'm gonna add support for Jump Pads.
 
 Original Description (with small changes by me):
 
-# UltraPattern (1.1.1)
+# UltraPattern (1.2.0)
 A Blender add-on to import, create, modify, and export Cyber Grind Pattern files for ULTRAKILL
 
 Use UltraPattern to build and visualize new patterns fast, set up animation environments quickly, and debug broken patterns!
