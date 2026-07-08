@@ -16,7 +16,7 @@
 bl_info = {
         "name": "UltraPattern",
         "author": "kommeleon",
-        "version": (1, 2, 1),
+        "version": (1, 2, 2),
         "blender": (5, 1, 0),
         "category": "3D View",
         "location": "3D View > Sidebar > UltraPattern",

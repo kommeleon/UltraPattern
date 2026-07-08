@@ -60,7 +60,6 @@ def make_stairs(stair_height, stair_rotation):
     
     old_objects = set(bpy.data.objects)
 
-
     try:
         bpy.ops.wm.obj_import(filepath=obj_filepath)
     except AttributeError:
@@ -94,20 +93,17 @@ def calculate_stairs(height_map, x, y, first_stair_rotation):
             stairs[1] = 1
             stairs[2] += 1
 
-
     if y > 0 and first_stair_rotation != 0:
         if 0 < (height_map[x][y-1] - height_map[x][y]) <= 2:
             stairs[0] = height_map[x][y-1] - height_map[x][y]
             stairs[1] = 0
             stairs[2] += 1
 
-
     if y < 15 and first_stair_rotation != 2:
         if 0 < (height_map[x][y+1] - height_map[x][y]) <= 2:
             stairs[0] = height_map[x][y+1] - height_map[x][y]
             stairs[1] = 2
             stairs[2] += 1
-
 
     return stairs
 
@@ -152,9 +148,72 @@ def make_jumppad():
 
     return jump_obj
 
+def make_lasergrid():
+    current_file_dir = os.path.dirname(__file__)
+    
+    # Try both possible names just in case you named it without the underscore
+    blend_filepath = os.path.join(current_file_dir, "resources", "lasergrid.blend")
+    if not os.path.exists(blend_filepath):
+        blend_filepath = os.path.join(current_file_dir, "resources", "laser_grid.blend")
+        
+    if not os.path.exists(blend_filepath):
+        # Force a loud crash if the file is missing
+        raise FileNotFoundError(f"ERROR: Cannot find lasergrid.blend or laser_grid.blend in your resources folder!")
+
+    # CRITICAL: This is case-sensitive! If your object is named "Lasergrid" or "Cube", this will fail.
+    object_name = "lasergrid" 
+    
+    directory = blend_filepath + "/Object/"
+    old_objects = set(bpy.data.objects)
+
+    try:
+        bpy.ops.wm.append(
+            filepath=blend_filepath + "/Object/" + object_name, 
+            directory=directory, 
+            filename=object_name
+        )
+    except Exception as e:
+        print(f"Failed to append lasergrid: {e}")
+        return None
+
+    new_objects = list(set(bpy.data.objects) - old_objects)
+    if not new_objects:
+        # Force a loud crash if the object name is wrong inside the .blend file
+        raise ValueError(f"ERROR: Found the .blend file, but it could NOT find an object named '{object_name}' inside it! Open the .blend file and check the exact spelling/capitalization in the Outliner.")
+
+    # Targeted filter to ensure we get the right object
+    lasergrid_top_obj = None
+    for obj in new_objects:
+        if obj.name.startswith(object_name):
+            lasergrid_top_obj = obj
+            break
+            
+    if not lasergrid_top_obj:
+        lasergrid_top_obj = new_objects[0]
+
+    lasergrid_top_obj.name = "Lasergrid_Top"
+    lasergrid_top_obj.location.x -= 1
+    lasergrid_top_obj.location.y -= 1
+
+    # Deep copy for the bottom piece
+    lasergrid_bottom_obj = lasergrid_top_obj.copy()
+    lasergrid_bottom_obj.data = lasergrid_top_obj.data.copy()
+    lasergrid_bottom_obj.name = "Lasergrid_Bottom"
+
+    # Because data.copy() strips materials, we re-link the appended materials here
+    if lasergrid_top_obj.data.materials:
+        for mat in lasergrid_top_obj.data.materials:
+            lasergrid_bottom_obj.data.materials.append(mat)
+
+    bpy.context.collection.objects.link(lasergrid_bottom_obj)
+    lasergrid_bottom_obj.rotation_euler[1] = math.radians(180)
+
+    return [lasergrid_top_obj, lasergrid_bottom_obj]
+
 def build_grid(context, height_map, prefab_map, name):
     PILLAR_VERTICAL_SCALE = 10
     BASE_PILLAR_SIZE = 2
+    LASER_GRID_HEIGHT_DIFFERENCE = 6
 
     # Create the collection for our pillars, and register it as a pattern
     collection = bpy.data.collections.new(name)
@@ -230,6 +289,20 @@ def build_grid(context, height_map, prefab_map, name):
                         context.collection.objects.unlink(jump_obj)
 
     bpy.data.objects.remove(original_pillar)
+
+    lasergrids = make_lasergrid()
+
+    if lasergrids:
+        for lasergrid in lasergrids:
+            lasergrid.location.z = -3.85
+            if "Bottom" in lasergrid.name:
+                lasergrid.location.z -= LASER_GRID_HEIGHT_DIFFERENCE
+
+            if lasergrid.name not in collection.objects:
+                collection.objects.link(lasergrid)
+
+            if lasergrid.name in context.collection.objects:
+                context.collection.objects.unlink(lasergrid)
 
     return {'FINISHED'}
 

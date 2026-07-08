@@ -10,7 +10,7 @@ If you find the changes I've made to this project to be helpful for you, please 
 
 Original Description (with small changes by me):
 
-# UltraPattern (1.2.1)
+# UltraPattern (1.2.2)
 
 A Blender add-on to import, create, modify, and export Cyber Grind Pattern files for ULTRAKILL
 
