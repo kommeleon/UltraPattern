@@ -239,9 +239,17 @@ def build_grid(context, height_map, prefab_map, name):
 
             if str(prefab) == "s":
                 stairs = calculate_stairs(height_map, x, y, 5)
+                if stairs[2] > 1:
+                    stairs_2 = calculate_stairs(height_map, x, y, stairs[1])
+                else:
+                    stairs_2 = stairs
+
                 if stairs[2] > 0:
-                    
-                    stair_obj = make_stairs(stairs[0],stairs[1]*90)
+                    if stairs[0] <= stairs_2[0]:
+                        stair_obj = make_stairs(stairs[0], stairs[1]*90)
+                    if stairs[0] > stairs_2[0]:
+                        stair_obj = make_stairs(stairs_2[0], stairs_2[1]*90)
+
                     stair_obj.location = position_offset.copy()
 
                     stair_obj.location.z = height
@@ -254,10 +262,8 @@ def build_grid(context, height_map, prefab_map, name):
                     if stair_obj.name in context.collection.objects:
                         context.collection.objects.unlink(stair_obj)
 
-                    if stairs [2] > 1:
-                        stairs = calculate_stairs(height_map, x, y, stairs[1])
-
-                        stair_obj = make_stairs(stairs[0],stairs[1]*90)
+                    if stairs[2] > 1 and stairs[0] == stairs_2[0]:
+                        stair_obj = make_stairs(stairs_2[0], stairs_2[1]*90)
                         stair_obj.location = position_offset.copy()
 
                         stair_obj.location.z = height
